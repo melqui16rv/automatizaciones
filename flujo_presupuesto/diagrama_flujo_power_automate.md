@@ -135,43 +135,59 @@ sequenceDiagram
 
 ### **PASO 4-6: Condiciones Anidadas**
 
+⚠️ **MUY IMPORTANTE:** Las condiciones DEBEN estar DENTRO del bucle "Aplicar a cada uno"
+
 ```mermaid
 graph TD
-    A[Archivo Actual] --> B{¿Contiene CDP?}
-    B -->|SÍ| C[Renombrar a CDP.xlsx]
-    B -->|NO| D{¿Contiene RP?}
-    D -->|SÍ| E[Renombrar a RP.xlsx]
-    D -->|NO| F{¿Contiene PAGO?}
-    F -->|SÍ| G[Renombrar a OP.xlsx]
-    F -->|NO| H[Mantener nombre original]
+    A[📋 Aplicar a cada uno] --> B[⬇️ DENTRO del bucle]
+    B --> C{🔍 ¿Contiene CDP?}
+    C -->|SÍ| D[📝 Renombrar a CDP.xlsx]
+    C -->|NO| E{🔍 ¿Contiene RP?}
+    E -->|SÍ| F[📝 Renombrar a RP.xlsx]
+    E -->|NO| G{🔍 ¿Contiene PAGO?}
+    G -->|SÍ| H[📝 Renombrar a OP.xlsx]
+    G -->|NO| I[⚪ Mantener nombre original]
     
-    C --> I[Siguiente archivo]
-    E --> I
-    G --> I
-    H --> I
+    D --> J[🔚 Siguiente archivo]
+    F --> J
+    H --> J
+    I --> J
     
+    classDef loop fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
     classDef condition fill:#fff3e0,stroke:#f57c00,stroke-width:2px
     classDef action fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
     classDef neutral fill:#fafafa,stroke:#616161,stroke-width:2px
     
-    class B,D,F condition
-    class C,E,G action
-    class H neutral
+    class A loop
+    class C,E,G condition
+    class D,F,H action
+    class I neutral
 ```
+
+### **🚨 ERROR COMÚN: "Apply_to_each referenced by inputs are not defined"**
+
+**CAUSA:** La condición está FUERA del bucle "Aplicar a cada uno"
+**SOLUCIÓN:** 
+1. ❌ Eliminar condición mal ubicada
+2. ✅ Crear condición DENTRO del bucle
+3. ✅ Hacer clic en "+" DENTRO de "Aplicar a cada uno"
 
 #### **Configuración Detallada de Condiciones:**
 
-**Condición 1 - CDP:**
+⚠️ **UBICACIÓN CRÍTICA:** Todas las condiciones deben estar DENTRO del "Aplicar a cada uno"
+
+**Condición 1 - CDP:** (DENTRO del bucle)
 ```javascript
-// Expresión de condición
+// PASO 1: Hacer clic en "+" DENTRO de "Aplicar a cada uno"
+// PASO 2: Agregar acción → Control → Condición
+// PASO 3: Configurar expresión de condición:
 contains(items('Apply_to_each')?['Name'], 'CDP')
 
-// Acción en rama SÍ: Mover archivo
+// PASO 4: En rama SÍ, agregar acción OneDrive:
 Conector: OneDrive para la Empresa
-Acción: "Mover archivo"
+Acción: "Mover un archivo o cambiar su nombre"
 Archivo: items('Apply_to_each')?['{FullPath}']
-Carpeta de destino: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva
-Nuevo nombre: CDP.xlsx
+Ruta de destino: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/CDP.xlsx
 ```
 
 **Condición 2 - RP:**
