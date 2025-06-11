@@ -55,8 +55,11 @@ Elemento de Power Automate: CONTROL
 │ Conector: Control                                           │
 │ Acción: "Aplicar a cada uno"                              │
 │ Configuración:                                              │
-│   ├─ Entrada: value (del paso anterior)                   │
+│   ├─ Entrada: body/value (del paso anterior)              │
 │   └─ Variable automática: items('Apply_to_each')          │
+│                                                             │
+│ ⚠️ IMPORTANTE: En la interfaz verás "body/value"           │
+│ (no solo "value") - esta es la selección correcta         │
 │                                                             │
 │ Función: Crea un bucle que procesa cada archivo           │
 │ individualmente, permitiendo aplicar lógica específica     │

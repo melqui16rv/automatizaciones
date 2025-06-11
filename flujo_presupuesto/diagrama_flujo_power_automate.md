@@ -125,8 +125,13 @@ sequenceDiagram
 2. **Seleccionar:** "Aplicar a cada uno"
 3. **Configuración:**
    ```
-   Seleccionar una salida de los pasos anteriores: value
+   Seleccionar una salida de los pasos anteriores: body/value
    ```
+   
+   ⚠️ **IMPORTANTE:** En la interfaz verás "body/value" (no solo "value")
+   - Esto es porque Power Automate muestra la estructura completa del objeto
+   - "body/value" contiene el array de archivos de OneDrive
+   - Es la selección correcta para iterar sobre los archivos
 
 ### **PASO 4-6: Condiciones Anidadas**
 
