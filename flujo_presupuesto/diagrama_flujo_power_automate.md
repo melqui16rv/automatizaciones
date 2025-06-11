@@ -102,7 +102,7 @@ graph LR
 
 ### **PASO 2: Obtener Archivos de OneDrive**
 1. **Agregar nueva acción** → Buscar "OneDrive"
-2. **Seleccionar:** "Enumerar archivos de la carpeta"
+2. **Seleccionar:** "Mostrar los archivos de la carpeta"
 3. **Configuración:**
    ```
    Carpeta: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva
@@ -296,146 +296,70 @@ graph LR
 
 ---
 
-## 🏗️ ESTRUCTURA REAL DEL FLUJO EN POWER AUTOMATE
+## 📝 ACCIONES COMPLETAS DE ONEDRIVE DISPONIBLES
 
-```mermaid
-flowchart TD
-    subgraph "Nivel 1: Flujo Principal"
-        A["🟠 Activar manualmente un flujo"]
-        B["🔵 Mostrar los archivos de la carpeta"]
-        C["🟣 Aplicar a cada uno"]
-    end
-    
-    subgraph "Nivel 2: Dentro del Bucle"
-        D["🟣 Condición 1"]
-        E["🔵 Mover archivo → CDP.xlsx"]
-        F["🟣 Condición 2"]
-        G["🔵 Mover archivo → RP.xlsx"]
-        H["🟣 Condición 3"]
-        I["🔵 Mover archivo → OP.xlsx"]
-        J["⚪ [Vacío - Sin acción]"]
-    end
-    
-    A --> B
-    B --> C
-    C --> D
-    
-    D -->|"SÍ<br/>Contiene 'CDP'"| E
-    D -->|"NO<br/>No contiene 'CDP'"| F
-    
-    F -->|"SÍ<br/>Contiene 'RP'"| G
-    F -->|"NO<br/>No contiene 'RP'"| H
-    
-    H -->|"SÍ<br/>Contiene 'PAGO'"| I
-    H -->|"NO<br/>No contiene 'PAGO'"| J
-    
-    E --> K["🔚 Siguiente iteración"]
-    G --> K
-    I --> K
-    J --> K
-    
-    classDef trigger fill:#ff9800,color:#ffffff,stroke:#f57c00,stroke-width:2px
-    classDef action fill:#2196f3,color:#ffffff,stroke:#1976d2,stroke-width:2px
-    classDef control fill:#9c27b0,color:#ffffff,stroke:#7b1fa2,stroke-width:2px
-    classDef empty fill:#fafafa,stroke:#616161,stroke-width:1px
-    
-    class A trigger
-    class B,E,G,I action
-    class C,D,F,H control
-    class J empty
-```
+Aquí tienes **todas las acciones disponibles** en OneDrive para la Empresa en Power Automate:
+
+### **📁 GESTIÓN DE ARCHIVOS:**
+- ✅ **"Mostrar los archivos de la carpeta"** ← **(USAMOS ESTA)**
+- ✅ **"Mover un archivo o cambiar su nombre"** ← **(USAMOS ESTA)**
+- 📄 "Crear archivo"
+- 🔄 "Actualizar archivo"
+- 🗑️ "Eliminar archivo"
+- 📋 "Copiar archivo"
+
+### **🔍 BÚSQUEDA Y NAVEGACIÓN:**
+- 🔍 "Buscar archivos en la carpeta"
+- 🔍 "Buscar archivos en la carpeta por ruta de acceso"
+- 📁 "Mostrar los archivos de la carpeta raíz"
+
+### **📤 CARGA Y DESCARGA:**
+- ⬇️ "Cargar un archivo desde una dirección URL"
+- 📊 "Obtener contenido de archivo"
+- 📊 "Obtener contenido de archivo mediante ruta de acceso"
+
+### **🔗 VÍNCULOS Y METADATOS:**
+- 🔗 "Crear un vínculo para compartir"
+- 🔗 "Crear un vínculo para compartir por ruta de acceso"
+- 🏷️ "Obtener metadatos del archivo"
+- 🏷️ "Obtener metadatos de archivo mediante ruta de acceso"
+- 🖼️ "Obtener la miniatura del archivo"
+
+### **🔄 CONVERSIÓN Y PROCESAMIENTO:**
+- 🔄 "Convertir un archivo" (Vista previa)
+- 🔄 "Convertir un archivo mediante una ruta de acceso" (Vista previa)
+- 📦 "Extraer archivo a carpeta"
+
+### **📂 OPERACIONES CON RUTAS:**
+- 📝 "Copiar un archivo mediante una ruta de acceso"
+- 📝 "Mover un archivo o cambiar su nombre mediante una ruta de acceso"
 
 ---
 
-## 🔧 CONFIGURACIÓN PASO A PASO CON CAPTURAS
+## ✅ CONFIRMACIÓN DE ACCIONES PARA NUESTRO FLUJO
 
-### **PASO 1: Desencadenador**
+Para nuestro flujo específico **solo necesitamos 2 acciones**:
+
+### **1. 📋 "Mostrar los archivos de la carpeta"**
 ```
-1. Ir a Power Automate → Crear → Flujo automatizado
-2. Nombre: "Renombrar Archivos Presupuesto ADMIN"
-3. Buscar: "manual"
-4. Seleccionar: "Activar manualmente un flujo"
-5. Clic en "Crear"
-
-✅ Resultado: Aparece caja naranja con título del desencadenador
+🎯 Propósito: Obtener lista de todos los archivos en la carpeta
+📍 Configuración: Especificar ruta de la carpeta
+📤 Salida: Array "value" con información de cada archivo
 ```
 
-### **PASO 2: Acción OneDrive - Listar Archivos**
+### **2. 📝 "Mover un archivo o cambiar su nombre"**
 ```
-1. Clic en "+ Nuevo paso"
-2. Buscar: "OneDrive"
-3. Seleccionar: "OneDrive para la Empresa"
-4. Buscar acción: "Mostrar los archivos de la carpeta"
-5. En "Carpeta": escribir o navegar a:
-   /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva
-
-✅ Resultado: Aparece caja azul con el conector OneDrive
+🎯 Propósito: Renombrar archivos específicos
+📍 Configuración: 
+   ├─ Archivo: Ruta del archivo actual
+   ├─ Carpeta de destino: Misma carpeta (para renombrar)
+   └─ Nuevo nombre: CDP.xlsx, RP.xlsx, OP.xlsx
 ```
 
-### **PASO 3: Control - Aplicar a cada uno**
-```
-1. Clic en "+ Nuevo paso"
-2. Buscar: "Control"
-3. Seleccionar: "Aplicar a cada uno"
-4. En "Seleccionar una salida de los pasos anteriores":
-   - Clic en el campo
-   - Seleccionar "value" (aparece automáticamente)
-
-✅ Resultado: Aparece caja morada que contiene otros elementos
-```
-
-### **PASO 4: Primera Condición (CDP)**
-```
-1. DENTRO del bucle "Aplicar a cada uno":
-   - Clic en "Agregar una acción"
-2. Buscar: "Control"
-3. Seleccionar: "Condición"
-4. Configurar:
-   - Lado izquierdo: Clic en "Expresión"
-   - Escribir: contains(items('Apply_to_each')?['Name'], 'CDP')
-   - Operador: "es igual a"
-   - Lado derecho: true
-
-✅ Resultado: Se crea condición con dos ramas (Sí/No)
-```
-
-### **PASO 5: Acción en Rama "SÍ"**
-```
-1. En la rama "Sí" de la condición:
-   - Clic en "Agregar una acción"
-2. Buscar: "OneDrive"
-3. Seleccionar: "Mover un archivo o cambiar su nombre"
-4. Configurar:
-   - Archivo: Clic en "Expresión"
-   - Escribir: items('Apply_to_each')?['{FullPath}']
-   - Carpeta de destino: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva
-   - Nuevo nombre: CDP.xlsx
-
-✅ Resultado: Acción de renombrado en rama positiva
-```
-
-### **PASO 6: Condición Anidada en Rama "NO"**
-```
-1. En la rama "No" de la primera condición:
-   - Clic en "Agregar una acción"
-2. Repetir proceso de condición
-3. Expresión: contains(items('Apply_to_each')?['Name'], 'RP')
-
-✅ Resultado: Segunda condición anidada dentro de la primera
-```
+### **🚫 Acciones que NO necesitamos:**
+- ❌ "Buscar archivos en la carpeta" (ya tenemos la lista completa)
+- ❌ "Obtener metadatos" (ya incluidos en "Mostrar archivos")
+- ❌ "Crear archivo" (solo renombramos existentes)
+- ❌ "Eliminar archivo" (solo cambiamos nombres)
 
 ---
-
-## ❓ PREGUNTAS FRECUENTES
-
-### **P: ¿Por qué no veo las ramas SÍ/NO al principio?**
-**R:** Las ramas aparecen **automáticamente** cuando agregas una **Condición**. No tienes que crearlas manualmente.
-
-### **P: ¿Qué pasa si no agrego nada en la rama "NO"?**
-**R:** El flujo **continúa normalmente**. Es perfectamente válido dejar una rama vacía.
-
-### **P: ¿Puedo probar el flujo sin archivos reales?**
-**R:** Sí, pero necesitas al menos **acceso a la carpeta** de OneDrive. Puedes crear archivos de prueba con nombres como "test CDP.xlsx".
-
-### **P: ¿Qué significa "items('Apply_to_each')"?**
-**R:** Es la referencia al **archivo actual** en el bucle. Power Automate la genera automáticamente.
