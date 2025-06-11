@@ -19,13 +19,13 @@ flowchart TD
     A[🚀 INICIO DEL FLUJO<br/>Activar manualmente] --> B[📁 LISTAR ARCHIVOS<br/>OneDrive: Carpeta ADMIN/nueva]
     B --> C[🔄 APLICAR A CADA UNO<br/>Para cada archivo encontrado]
     
-    C --> D{🔍 ¿Contiene 'CDP'?<br/>contains(Name, 'CDP')}
+    C --> D{🔍 ¿Contiene CDP?<br/>contains Name CDP}
     
     D -->|SÍ| E[📝 RENOMBRAR A CDP.xlsx<br/>Mover archivo OneDrive]
-    D -->|NO| F{🔍 ¿Contiene 'RP'?<br/>contains(Name, 'RP')}
+    D -->|NO| F{🔍 ¿Contiene RP?<br/>contains Name RP}
     
     F -->|SÍ| G[📝 RENOMBRAR A RP.xlsx<br/>Mover archivo OneDrive]
-    F -->|NO| H{🔍 ¿Contiene 'PAGO'?<br/>contains(Name, 'PAGO')}
+    F -->|NO| H{🔍 ¿Contiene PAGO?<br/>contains Name PAGO}
     
     H -->|SÍ| I[📝 RENOMBRAR A OP.xlsx<br/>Mover archivo OneDrive]
     H -->|NO| J[⚪ MANTENER NOMBRE<br/>Sin cambios]
@@ -60,9 +60,9 @@ flowchart TD
 graph LR
     A[Archivo Original] --> B{Evaluar Nombre}
     
-    B -->|Contiene 'CDP'| C[CDP.xlsx]
-    B -->|Contiene 'RP'| D[RP.xlsx]
-    B -->|Contiene 'PAGO'| E[OP.xlsx]
+    B -->|Contiene CDP| C[CDP.xlsx]
+    B -->|Contiene RP| D[RP.xlsx]
+    B -->|Contiene PAGO| E[OP.xlsx]
     B -->|No cumple reglas| F[Nombre Original]
     
     subgraph "Ejemplos de Transformación"
@@ -132,11 +132,11 @@ sequenceDiagram
 
 ```mermaid
 graph TD
-    A[Archivo Actual] --> B{¿Contiene 'CDP'?}
+    A[Archivo Actual] --> B{¿Contiene CDP?}
     B -->|SÍ| C[Renombrar a CDP.xlsx]
-    B -->|NO| D{¿Contiene 'RP'?}
+    B -->|NO| D{¿Contiene RP?}
     D -->|SÍ| E[Renombrar a RP.xlsx]
-    D -->|NO| F{¿Contiene 'PAGO'?}
+    D -->|NO| F{¿Contiene PAGO?}
     F -->|SÍ| G[Renombrar a OP.xlsx]
     F -->|NO| H[Mantener nombre original]
     
