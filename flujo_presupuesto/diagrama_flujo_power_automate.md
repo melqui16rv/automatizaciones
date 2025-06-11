@@ -82,174 +82,337 @@ graph LR
 
 ---
 
-## 🛠️ PASOS DETALLADOS DE CONFIGURACIÓN
+## 🛠️ PASOS DETALLADOS DE CONFIGURACIÓN EN POWER AUTOMATE
 
-### **PASO 1: Configurar el Desencadenador**
-1. **Crear nuevo flujo** → "Flujo de nube automatizado"
-2. **Nombre:** "Renombrar Archivos Presupuesto ADMIN"
-3. **Desencadenador:** "Activar manualmente un flujo" (para pruebas)
-   - O "Periodicidad" (para automatización)
+### **PASO 1: Crear el Flujo Base**
+1. **Ir a Power Automate** → https://make.powerautomate.com
+2. **Crear** → **Flujo automatizado**
+3. **Nombre del flujo:** `Renombrar Archivos Presupuesto ADMIN`
+4. **Elegir desencadenador:** `Activar manualmente un flujo`
+5. **Hacer clic en:** `Crear`
+
+```
+✅ RESULTADO: Flujo creado con desencadenador manual
+```
 
 ```mermaid
 graph LR
-    A[Nuevo Flujo] --> B[Flujo Automatizado]
-    B --> C[Desencadenador Manual]
-    C --> D[Listo para usar]
+    A[Power Automate] --> B[Crear → Flujo automatizado]
+    B --> C[Nombrar flujo]
+    C --> D[Desencadenador manual]
+    D --> E[Crear]
     
     classDef step fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    class A,B,C,D step
+    class A,B,C,D,E step
 ```
 
-### **PASO 2: Obtener Archivos de OneDrive**
-1. **Agregar nueva acción** → Buscar "OneDrive"
-2. **Seleccionar:** "Mostrar los archivos de la carpeta"
-3. **Configuración:**
+### **PASO 2: Agregar Acción OneDrive**
+1. **Hacer clic en:** `+ Nuevo paso`
+2. **En el buscador escribir:** `OneDrive`
+3. **Seleccionar conector:** `OneDrive para la Empresa`
+4. **Elegir acción:** `Mostrar los archivos de la carpeta`
+5. **Configurar parámetros:**
    ```
-   Carpeta: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva
+   📁 Carpeta: Hacer clic en 📂 → Navegar hasta:
+   /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva
    ```
+6. **Hacer clic en:** `Agregar`
+
+```
+✅ RESULTADO: Acción configurada para listar archivos de la carpeta
+```
 
 ```mermaid
 sequenceDiagram
+    participant U as Usuario
     participant PA as Power Automate
     participant OD as OneDrive
-    participant CP as Carpeta ADMIN/nueva
     
-    PA->>OD: Conectar a OneDrive
-    OD->>CP: Enumerar archivos
-    CP->>OD: Lista de archivos
-    OD->>PA: Retornar archivos encontrados
+    U->>PA: + Nuevo paso
+    PA->>U: Mostrar conectores
+    U->>PA: Seleccionar OneDrive
+    PA->>U: Mostrar acciones
+    U->>PA: Mostrar archivos de carpeta
+    PA->>OD: Conectar y listar archivos
+    OD->>PA: Retornar lista de archivos
 ```
 
-### **PASO 3: Crear Bucle Para Cada Archivo**
-1. **Agregar nueva acción** → Buscar "Control"
-2. **Seleccionar:** "Aplicar a cada uno"
-3. **Configuración:**
+### **PASO 3: Crear Bucle "Aplicar a cada uno"**
+1. **Hacer clic en:** `+ Nuevo paso`
+2. **En el buscador escribir:** `Control`
+3. **Seleccionar:** `Control` (icono de engranaje)
+4. **Elegir acción:** `Aplicar a cada uno`
+5. **Configurar entrada:**
    ```
-   Seleccionar una salida de los pasos anteriores: body/value
+   📋 Seleccionar una salida de los pasos anteriores:
+   - Hacer clic en el campo de entrada
+   - Seleccionar: body/value (de "Mostrar los archivos de la carpeta")
    ```
+
+```
+⚠️ CRÍTICO: Debes seleccionar "body/value", NO solo "value"
+✅ RESULTADO: Bucle configurado para iterar sobre cada archivo
+```
+
+```mermaid
+graph TB
+    A[+ Nuevo paso] --> B[Buscar: Control]
+    B --> C[Seleccionar: Control]
+    C --> D[Aplicar a cada uno]
+    D --> E[Entrada: body/value]
+    E --> F[Bucle creado]
+    
+    classDef step fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef critical fill:#ffeb3b,stroke:#f57c00,stroke-width:3px
+    
+    class A,B,C,D,F step
+    class E critical
+```
+
+### **PASO 4: Primera Condición (CDP) - DENTRO del Bucle**
+
+⚠️ **MUY IMPORTANTE:** Los siguientes pasos se hacen DENTRO del bucle "Aplicar a cada uno"
+
+1. **Dentro del bucle, hacer clic en:** `+ Agregar una acción`
+2. **En el buscador escribir:** `Control`
+3. **Seleccionar:** `Control`
+4. **Elegir acción:** `Condición`
+5. **Configurar la condición:**
+   ```
+   🔍 Lado izquierdo: Hacer clic en 🧪 y escribir:
+   contains(items('Apply_to_each')?['Name'], 'CDP')
    
-   ⚠️ **IMPORTANTE:** En la interfaz verás "body/value" (no solo "value")
-   - Esto es porque Power Automate muestra la estructura completa del objeto
-   - "body/value" contiene el array de archivos de OneDrive
-   - Es la selección correcta para iterar sobre los archivos
+   📊 Operador: seleccionar "es igual a"
+   
+   📝 Lado derecho: escribir: true
+   ```
 
-### **PASO 4-6: Condiciones Anidadas**
+```
+✅ RESULTADO: Condición creada para detectar archivos con "CDP"
+```
 
-⚠️ **MUY IMPORTANTE:** Las condiciones DEBEN estar DENTRO del bucle "Aplicar a cada uno"
+### **PASO 5: Acción para Renombrar CDP - Rama "Sí"**
+1. **En la rama "Sí" de la condición, hacer clic en:** `+ Agregar una acción`
+2. **Buscar:** `OneDrive`
+3. **Seleccionar:** `OneDrive para la Empresa`
+4. **Elegir acción:** `Mover un archivo o cambiar su nombre`
+5. **Configurar parámetros:**
+   ```
+   📄 Archivo: Hacer clic en 🧪 y escribir:
+   items('Apply_to_each')?['Id']
+   
+   📁 Ruta de acceso del archivo de destino:
+   /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/CDP.xlsx
+   
+   ❌ Sobrescribir: No (o false)
+   ```
+
+```
+✅ RESULTADO: Archivos con "CDP" se renombrarán a "CDP.xlsx"
+```
+
+### **PASO 6: Segunda Condición (RP) - Rama "No" de CDP**
+1. **En la rama "No" de la primera condición, hacer clic en:** `+ Agregar una acción`
+2. **Buscar:** `Control`
+3. **Seleccionar:** `Control`
+4. **Elegir acción:** `Condición`
+5. **Configurar la condición:**
+   ```
+   🔍 Lado izquierdo: Hacer clic en 🧪 y escribir:
+   contains(items('Apply_to_each')?['Name'], 'RP')
+   
+   📊 Operador: seleccionar "es igual a"
+   
+   📝 Lado derecho: escribir: true
+   ```
+
+### **PASO 7: Acción para Renombrar RP - Rama "Sí"**
+1. **En la rama "Sí" de esta segunda condición, hacer clic en:** `+ Agregar una acción`
+2. **Buscar:** `OneDrive`
+3. **Seleccionar:** `OneDrive para la Empresa`
+4. **Elegir acción:** `Mover un archivo o cambiar su nombre`
+5. **Configurar parámetros:**
+   ```
+   📄 Archivo: Hacer clic en 🧪 y escribir:
+   items('Apply_to_each')?['Id']
+   
+   📁 Ruta de acceso del archivo de destino:
+   /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/RP.xlsx
+   
+   ❌ Sobrescribir: No (o false)
+   ```
+
+### **PASO 8: Tercera Condición (PAGO) - Rama "No" de RP**
+1. **En la rama "No" de la segunda condición, hacer clic en:** `+ Agregar una acción`
+2. **Buscar:** `Control`
+3. **Seleccionar:** `Control`
+4. **Elegir acción:** `Condición`
+5. **Configurar la condición:**
+   ```
+   🔍 Lado izquierdo: Hacer clic en 🧪 y escribir:
+   contains(items('Apply_to_each')?['Name'], 'PAGO')
+   
+   📊 Operador: seleccionar "es igual a"
+   
+   📝 Lado derecho: escribir: true
+   ```
+
+### **PASO 9: Acción para Renombrar OP - Rama "Sí"**
+1. **En la rama "Sí" de esta tercera condición, hacer clic en:** `+ Agregar una acción`
+2. **Buscar:** `OneDrive`
+3. **Seleccionar:** `OneDrive para la Empresa`
+4. **Elegir acción:** `Mover un archivo o cambiar su nombre`
+5. **Configurar parámetros:**
+   ```
+   📄 Archivo: Hacer clic en 🧪 y escribir:
+   items('Apply_to_each')?['Id']
+   
+   📁 Ruta de acceso del archivo de destino:
+   /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/OP.xlsx
+   
+   ❌ Sobrescribir: No (o false)
+   ```
+
+### **PASO 10: Dejar rama "No" vacía**
+En la rama "No" de la tercera condición (PAGO), **NO agregar ninguna acción**. Esto permite que los archivos que no cumplen ninguna regla mantengan su nombre original.
+
+```
+✅ RESULTADO FINAL: Flujo completo con condiciones anidadas
+```
+
+## 🎯 **ESTRUCTURA VISUAL FINAL DEL FLUJO**
 
 ```mermaid
 graph TD
-    A[📋 Aplicar a cada uno] --> B[⬇️ DENTRO del bucle]
-    B --> C{🔍 ¿Contiene CDP?}
-    C -->|SÍ| D[📝 Renombrar a CDP.xlsx]
-    C -->|NO| E{🔍 ¿Contiene RP?}
-    E -->|SÍ| F[📝 Renombrar a RP.xlsx]
-    E -->|NO| G{🔍 ¿Contiene PAGO?}
-    G -->|SÍ| H[📝 Renombrar a OP.xlsx]
-    G -->|NO| I[⚪ Mantener nombre original]
+    A[🚀 Activar manualmente] --> B[📁 Mostrar archivos OneDrive]
+    B --> C[🔄 Aplicar a cada uno]
     
-    D --> J[🔚 Siguiente archivo]
-    F --> J
-    H --> J
-    I --> J
+    C --> D{🔍 ¿Contiene CDP?}
+    D -->|SÍ| E[📝 Renombrar a CDP.xlsx]
+    D -->|NO| F{🔍 ¿Contiene RP?}
     
-    classDef loop fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
-    classDef condition fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    F -->|SÍ| G[📝 Renombrar a RP.xlsx]
+    F -->|NO| H{🔍 ¿Contiene PAGO?}
+    
+    H -->|SÍ| I[📝 Renombrar a OP.xlsx]
+    H -->|NO| J[⚪ Mantener nombre original]
+    
+    E --> K[🔚 Siguiente archivo]
+    G --> K
+    I --> K
+    J --> K
+    
+    classDef startEnd fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef decision fill:#fff3e0,stroke:#f57c00,stroke-width:2px
     classDef action fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    classDef neutral fill:#fafafa,stroke:#616161,stroke-width:2px
+    classDef maintain fill:#fafafa,stroke:#616161,stroke-width:2px
     
-    class A loop
-    class C,E,G condition
-    class D,F,H action
-    class I neutral
+    class A,K startEnd
+    class B,C process
+    class D,F,H decision
+    class E,G,I action
+    class J maintain
 ```
 
-### **🚨 ERROR COMÚN: "Apply_to_each referenced by inputs are not defined"**
+---
 
-**CAUSA:** La condición está FUERA del bucle "Aplicar a cada uno"
-**SOLUCIÓN:** 
-1. ❌ Eliminar condición mal ubicada
-2. ✅ Crear condición DENTRO del bucle
-3. ✅ Hacer clic en "+" DENTRO de "Aplicar a cada uno"
+## 🔧 EXPRESIONES Y CONFIGURACIONES ESPECÍFICAS
 
-#### **Configuración Detallada de Condiciones:**
+### **🧪 Expresiones que debes copiar exactamente:**
 
-⚠️ **UBICACIÓN CRÍTICA:** Todas las condiciones deben estar DENTRO del "Aplicar a cada uno"
-
-**Condición 1 - CDP:** (DENTRO del bucle)
+#### **Para las condiciones (copiar en el campo de expresión):**
 ```javascript
-// PASO 1: Hacer clic en "+" DENTRO de "Aplicar a cada uno"
-// PASO 2: Agregar acción → Control → Condición
-// PASO 3: Configurar expresión de condición:
+// Condición 1 - CDP:
 contains(items('Apply_to_each')?['Name'], 'CDP')
 
-// PASO 4: En rama SÍ, agregar acción OneDrive:
-Conector: OneDrive para la Empresa
-Acción: "Mover un archivo o cambiar su nombre"
-Archivo: items('Apply_to_each')?['{FullPath}']
-Ruta de destino: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/CDP.xlsx
-```
-
-**Condición 2 - RP:**
-```javascript
-// Expresión de condición
+// Condición 2 - RP:
 contains(items('Apply_to_each')?['Name'], 'RP')
 
-// Acción en rama SÍ: Mover archivo
-Archivo: items('Apply_to_each')?['{FullPath}']
-Nuevo nombre: RP.xlsx
-```
-
-**Condición 3 - PAGO:**
-```javascript
-// Expresión de condición
+// Condición 3 - PAGO:
 contains(items('Apply_to_each')?['Name'], 'PAGO')
-
-// Acción en rama SÍ: Mover archivo
-Archivo: items('Apply_to_each')?['{FullPath}']
-Nuevo nombre: OP.xlsx
 ```
+
+#### **Para las acciones de renombrar (campo "Archivo"):**
+```javascript
+// En todas las acciones "Mover un archivo":
+items('Apply_to_each')?['Id']
+```
+
+#### **Para las rutas de destino (copiar exactamente):**
+```
+/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/CDP.xlsx
+/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/RP.xlsx
+/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/OP.xlsx
+```
+
+### **🎯 Pasos para insertar expresiones:**
+1. **Hacer clic en el botón 🧪** (icono de expresión)
+2. **Copiar y pegar** la expresión exacta
+3. **Hacer clic en:** `Aceptar`
+
+### **⚠️ Errores comunes a evitar:**
+- ❌ **NO uses** `{FullPath}` → **USA** `Id`
+- ❌ **NO olvides** las comillas simples en las expresiones
+- ❌ **NO agregues** espacios extra en las expresiones
+- ❌ **NO uses** `body/value` en las condiciones → **USA** las expresiones completas
 
 ---
 
-## 🔧 EXPRESIONES Y CONFIGURACIONES OneDrive
+## ✅ VALIDACIÓN Y PRUEBAS DEL FLUJO
 
-### **Para referencia del archivo actual:**
-```javascript
-items('Apply_to_each')?['Name']          // Nombre del archivo
-items('Apply_to_each')?['{FullPath}']    // Ruta completa OneDrive
-items('Apply_to_each')?['Id']            // ID único del archivo
-items('Apply_to_each')?['Size']          // Tamaño del archivo
-```
+### **🧪 PASO 11: Guardar y Probar el Flujo**
+1. **Hacer clic en:** `Guardar` (esquina superior derecha)
+2. **Esperar confirmación:** "Flujo guardado correctamente"
+3. **Hacer clic en:** `Probar` 
+4. **Seleccionar:** `Manualmente`
+5. **Hacer clic en:** `Guardar y probar`
+6. **Hacer clic en:** `Ejecutar flujo`
+7. **Hacer clic en:** `Listo`
 
-### **Para construir rutas de destino OneDrive:**
-```javascript
-// Concatenar ruta base con nuevo nombre
-concat('/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/', 'CDP.xlsx')
-concat('/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/', 'RP.xlsx')
-concat('/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/', 'OP.xlsx')
-```
+### **📊 Verificar Resultados:**
+1. **Ir a la carpeta OneDrive:** `/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva`
+2. **Verificar que los archivos se renombraron correctamente:**
+   - Archivos con "CDP" → `CDP.xlsx`
+   - Archivos con "RP" → `RP.xlsx`  
+   - Archivos con "PAGO" → `OP.xlsx`
+   - Otros archivos → Sin cambios
 
-### **Expresiones de condiciones mejoradas:**
-```javascript
-// Búsqueda insensible a mayúsculas/minúsculas
-contains(toLower(items('Apply_to_each')?['Name']), 'cdp')
-contains(toLower(items('Apply_to_each')?['Name']), 'rp')
-contains(toLower(items('Apply_to_each')?['Name']), 'pago')
-```
+### **🔍 Verificar Historial de Ejecución:**
+1. **En Power Automate, ir a:** `Mis flujos`
+2. **Hacer clic en tu flujo:** `Renombrar Archivos Presupuesto ADMIN`
+3. **Ver historial de ejecución**
+4. **Verificar que todas las acciones muestren:** ✅ Correcto
 
-### **Validación de archivos Excel:**
-```javascript
-// Verificar que sea archivo Excel
-and(
-  contains(items('Apply_to_each')?['Name'], '.xlsx'),
-  contains(items('Apply_to_each')?['Name'], 'CDP')
-)
-```
+### **🚨 Solución de Problemas Comunes:**
 
----
+#### **Error: "Apply_to_each referenced by inputs are not defined"**
+**Causa:** Condiciones creadas fuera del bucle
+**Solución:** Eliminar condiciones mal ubicadas y recrearlas DENTRO del "Aplicar a cada uno"
 
-## 📁 ACCIONES ESPECÍFICAS DE ONEDRIVE DISPONIBLES
+#### **Error: "File not found" o "Invalid path"**
+**Causa:** Ruta de OneDrive incorrecta
+**Solución:** Verificar que la ruta existe y tienes permisos de escritura
+
+#### **Error: "Expression evaluation failed"**
+**Causa:** Expresión mal escrita
+**Solución:** Copiar exactamente las expresiones de esta documentación
+
+## 🎯 CHECKLIST FINAL DE VALIDACIÓN
+
+### **Antes de ejecutar:**
+- [ ] ✅ Flujo tiene exactamente 3 elementos principales
+- [ ] ✅ "Aplicar a cada uno" usa entrada `body/value`
+- [ ] ✅ Todas las condiciones están DENTRO del bucle
+- [ ] ✅ Expresiones copiadas exactamente como se muestra
+- [ ] ✅ Rutas de destino incluyen el nombre del archivo completo
+- [ ] ✅ Campo "Archivo" usa `items('Apply_to_each')?['Id']`
+
+### **Después de ejecutar:**
+- [ ] ✅ Flujo se ejecutó sin errores
+- [ ] ✅ Archivos se renombraron correctamente
+- [ ] ✅ Archivos sin reglas mantuvieron nombre original
+- [ ] ✅ No se crearon archivos duplicados
 
 Basado en las opciones que mostraste, aquí están las acciones exactas que necesitamos:
 

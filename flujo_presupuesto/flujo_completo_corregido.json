@@ -1,0 +1,167 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "$connections": {
+        "defaultValue": {},
+        "type": "Object"
+      }
+    },
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "PowerApp",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+          }
+        }
+      }
+    },
+    "actions": {
+      "Mostrar_los_archivos_de_la_carpeta": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "parameters": {
+            "id": "b!wTcQzQlAWky_LS6G1p_Mp757LfSybU5CiwO5u6WtkvTr69Fgndm3S510JtpHlCpz.01HF66WFXRAJKD4C5UBVFIEDFCN5MCFVXD"
+          },
+          "host": {
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+            "connectionName": "shared_onedriveforbusiness",
+            "operationId": "ListFolderV2"
+          }
+        },
+        "runAfter": {},
+        "metadata": {
+          "b!wTcQzQlAWky_LS6G1p_Mp757LfSybU5CiwO5u6WtkvTr69Fgndm3S510JtpHlCpz.01HF66WFXRAJKD4C5UBVFIEDFCN5MCFVXD": "/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva"
+        }
+      },
+      "Apply_to_each": {
+        "type": "Foreach",
+        "foreach": "@outputs('Mostrar_los_archivos_de_la_carpeta')?['body']?['value']",
+        "actions": {
+          "Condición": {
+            "type": "If",
+            "expression": {
+              "and": [
+                {
+                  "contains": [
+                    "@items('Apply_to_each')?['Name']",
+                    "CDP"
+                  ]
+                }
+              ]
+            },
+            "actions": {
+              "cambiar_su_nombre_CDP": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "parameters": {
+                    "id": "@items('Apply_to_each')?['Id']",
+                    "destination": "/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/CDP.xlsx",
+                    "overwrite": false
+                  },
+                  "host": {
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+                    "connectionName": "shared_onedriveforbusiness",
+                    "operationId": "MoveFile"
+                  }
+                }
+              }
+            },
+            "else": {
+              "actions": {
+                "Condición_1": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "contains": [
+                          "@items('Apply_to_each')?['Name']",
+                          "RP"
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "cambiar_su_nombre_RP": {
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "id": "@items('Apply_to_each')?['Id']",
+                          "destination": "/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/RP.xlsx",
+                          "overwrite": false
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+                          "connectionName": "shared_onedriveforbusiness",
+                          "operationId": "MoveFile"
+                        }
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Condición_2": {
+                        "type": "If",
+                        "expression": {
+                          "and": [
+                            {
+                              "contains": [
+                                "@items('Apply_to_each')?['Name']",
+                                "PAGO"
+                              ]
+                            }
+                          ]
+                        },
+                        "actions": {
+                          "cambiar_su_nombre_OP": {
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "id": "@items('Apply_to_each')?['Id']",
+                                "destination": "/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/OP.xlsx",
+                                "overwrite": false
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+                                "connectionName": "shared_onedriveforbusiness",
+                                "operationId": "MoveFile"
+                              }
+                            }
+                          }
+                        },
+                        "else": {
+                          "actions": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "runAfter": {
+          "Mostrar_los_archivos_de_la_carpeta": [
+            "Succeeded"
+          ]
+        }
+      }
+    }
+  },
+  "parameters": {
+    "$connections": {
+      "value": {
+        "shared_onedriveforbusiness": {
+          "connectionId": "/subscriptions/your-subscription-id/resourceGroups/your-resource-group/providers/Microsoft.Web/connections/shared_onedriveforbusiness",
+          "connectionName": "shared_onedriveforbusiness",
+          "id": "/subscriptions/your-subscription-id/providers/Microsoft.Web/locations/your-location/managedApis/onedriveforbusiness"
+        }
+      }
+    }
+  }
+}

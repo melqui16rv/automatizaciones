@@ -373,3 +373,169 @@ or(
 - **Mantenimiento:** Estructura modular y escalable para futuras modificaciones
 
 **Resultado esperado:** Archivos con nombres estandarizados que facilitan la gestión y localización de documentos presupuestales del SENA.
+
+## 🛠️ IMPLEMENTACIÓN PRÁCTICA PASO A PASO EN POWER AUTOMATE
+
+> **IMPORTANTE:** Power Automate no permite importar flujos desde JSON. Debes construir el flujo manualmente usando la interfaz gráfica.
+
+### **📋 CHECKLIST DE IMPLEMENTACIÓN**
+
+#### **1. 🟠 CREAR FLUJO BASE**
+```
+✅ Pasos a seguir:
+1. Ir a make.powerautomate.com
+2. Crear → Flujo automatizado  
+3. Nombrar: "Renombrar Archivos Presupuesto ADMIN"
+4. Desencadenador: "Activar manualmente un flujo"
+5. Crear flujo
+```
+
+#### **2. 🔵 AGREGAR ACCIÓN ONEDRIVE**
+```
+✅ Pasos a seguir:
+1. + Nuevo paso
+2. Buscar: OneDrive
+3. Conector: OneDrive para la Empresa
+4. Acción: "Mostrar los archivos de la carpeta"
+5. Carpeta: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva
+```
+
+#### **3. 🟣 CREAR BUCLE**
+```
+✅ Pasos a seguir:
+1. + Nuevo paso  
+2. Buscar: Control
+3. Acción: "Aplicar a cada uno"
+4. Entrada: body/value (del paso anterior)
+⚠️ CRÍTICO: Seleccionar "body/value", NO solo "value"
+```
+
+#### **4. 🟣 PRIMERA CONDICIÓN (CDP)**
+```
+✅ Dentro del bucle "Aplicar a cada uno":
+1. + Agregar una acción
+2. Buscar: Control
+3. Acción: Condición
+4. Expresión: contains(items('Apply_to_each')?['Name'], 'CDP')
+5. Operador: es igual a
+6. Valor: true
+```
+
+#### **5. 🔵 ACCIÓN RENOMBRAR CDP**
+```
+✅ En rama "Sí" de la condición CDP:
+1. + Agregar una acción
+2. Buscar: OneDrive
+3. Acción: "Mover un archivo o cambiar su nombre"
+4. Archivo: items('Apply_to_each')?['Id']
+5. Destino: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/CDP.xlsx
+6. Sobrescribir: No
+```
+
+#### **6. 🟣 SEGUNDA CONDICIÓN (RP)**
+```
+✅ En rama "No" de la condición CDP:
+1. + Agregar una acción
+2. Buscar: Control  
+3. Acción: Condición
+4. Expresión: contains(items('Apply_to_each')?['Name'], 'RP')
+5. Operador: es igual a
+6. Valor: true
+```
+
+#### **7. 🔵 ACCIÓN RENOMBRAR RP**
+```
+✅ En rama "Sí" de la condición RP:
+1. + Agregar una acción
+2. Buscar: OneDrive
+3. Acción: "Mover un archivo o cambiar su nombre"  
+4. Archivo: items('Apply_to_each')?['Id']
+5. Destino: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/RP.xlsx
+6. Sobrescribir: No
+```
+
+#### **8. 🟣 TERCERA CONDICIÓN (PAGO)**
+```
+✅ En rama "No" de la condición RP:
+1. + Agregar una acción
+2. Buscar: Control
+3. Acción: Condición
+4. Expresión: contains(items('Apply_to_each')?['Name'], 'PAGO')
+5. Operador: es igual a  
+6. Valor: true
+```
+
+#### **9. 🔵 ACCIÓN RENOMBRAR OP**
+```
+✅ En rama "Sí" de la condición PAGO:
+1. + Agregar una acción
+2. Buscar: OneDrive
+3. Acción: "Mover un archivo o cambiar su nombre"
+4. Archivo: items('Apply_to_each')?['Id']
+5. Destino: /SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/OP.xlsx
+6. Sobrescribir: No
+```
+
+#### **10. ⚪ RAMA "NO" FINAL**
+```
+✅ En rama "No" de la condición PAGO:
+- NO agregar ninguna acción
+- Los archivos que no cumplen reglas mantienen nombre original
+```
+
+### **🧪 EXPRESIONES PARA COPIAR Y PEGAR**
+
+#### **Condiciones (usar botón 🧪 expresión):**
+```javascript
+contains(items('Apply_to_each')?['Name'], 'CDP')
+contains(items('Apply_to_each')?['Name'], 'RP')  
+contains(items('Apply_to_each')?['Name'], 'PAGO')
+```
+
+#### **Campo "Archivo" en acciones OneDrive:**
+```javascript
+items('Apply_to_each')?['Id']
+```
+
+#### **Rutas de destino (copiar exactamente):**
+```
+/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/CDP.xlsx
+/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/RP.xlsx
+/SENA/CDFPI/PRESUPUESTO/nuve/ADMIN/nueva/OP.xlsx
+```
+
+### **🔍 VALIDACIÓN FINAL**
+
+#### **Estructura esperada del flujo:**
+```
+1. 🟠 Activar manualmente un flujo
+2. 🔵 Mostrar los archivos de la carpeta
+3. 🟣 Aplicar a cada uno
+   └── 🟣 Condición (CDP)
+       ├── Sí: 🔵 Mover archivo → CDP.xlsx
+       └── No: 🟣 Condición (RP)
+           ├── Sí: 🔵 Mover archivo → RP.xlsx  
+           └── No: 🟣 Condición (PAGO)
+               ├── Sí: 🔵 Mover archivo → OP.xlsx
+               └── No: (Sin acción)
+```
+
+#### **Pruebas recomendadas:**
+1. **Guardar** el flujo
+2. **Probar** con archivos de muestra
+3. **Verificar** que se renombren correctamente
+4. **Confirmar** que archivos sin reglas no cambien
+
+### **🚨 ERRORES COMUNES Y SOLUCIONES**
+
+#### **Error: "Apply_to_each referenced by inputs are not defined"**
+- **Causa:** Condiciones creadas fuera del bucle
+- **Solución:** Eliminar y recrear condiciones DENTRO del "Aplicar a cada uno"
+
+#### **Error: "File not found"**
+- **Causa:** Expresión incorrecta en campo "Archivo"
+- **Solución:** Usar `items('Apply_to_each')?['Id']` NO `{FullPath}`
+
+#### **Error: "Invalid path"**  
+- **Causa:** Ruta de destino incorrecta
+- **Solución:** Verificar permisos y ruta exacta en OneDrive
