@@ -51,7 +51,7 @@ Crear un flujo de Power Automate para **copiar archivos** de una carpeta origen 
 **⚙️ Configuración CRÍTICA:**
 - **Archivo:** `Id` (del contenido dinámico "Aplicar a cada uno")
 - **Carpeta de destino:** `/ADMIN/COPIADOS` (o tu carpeta destino)
-- **Nombre del nuevo archivo:** `Name` (del contenido dinámico "Aplicar a cada uno")
+- **Nombre del nuevo archivo:** ⚠️ **DEJAR VACÍO** (para mantener el nombre original)
 
 ---
 
@@ -86,6 +86,13 @@ flowchart TD
 ✅ CORRECTO: /ADMIN/COPIADOS
 ✅ CORRECTO: /Documents/Backup
 🚫 INCORRECTO: ADMIN/COPIADOS (sin /)
+```
+
+### **4. Nombre del Archivo Copiado**
+```
+✅ PARA MANTENER NOMBRE ORIGINAL: Dejar campo vacío
+✅ PARA RENOMBRAR: Escribir nuevo nombre
+🚫 INCORRECTO: Usar Name si quieres el nombre original
 ```
 
 ---
@@ -127,6 +134,7 @@ concat(formatDateTime(utcNow(), 'yyyy-MM-dd'), '_', items('Apply_to_each')?['Nam
 - [ ] ✅ Carpeta destino existe
 - [ ] ✅ Permisos de acceso a ambas carpetas
 - [ ] ✅ Campo "Archivo" usa `Id` (no `Name`)
+- [ ] ✅ Campo "Nombre del nuevo archivo" está VACÍO (para mantener nombre original)
 
 ### **Durante la Ejecución**
 - [ ] ✅ El bucle se ejecuta para cada archivo
@@ -209,16 +217,30 @@ split(items('Apply_to_each')?['Name'], '.')[0]
 
 ## 🎯 **EJEMPLO PRÁCTICO COMPLETO**
 
-**Flujo para copiar archivos de presupuesto:**
+**Flujo para copiar archivos manteniendo nombres originales:**
 
 1. **Trigger:** Manual
 2. **Listar:** Archivos de `/ADMIN`
-3. **Filtrar:** Solo archivos que contengan "presupuesto"
-4. **Copiar:** A `/ADMIN/PRESUPUESTOS_BACKUP`
-5. **Renombrar:** Agregar fecha actual
-6. **Notificar:** Email de confirmación
+3. **Copiar:** A `/ADMIN/BACKUP`
+4. **Mantener:** Nombres originales exactos
+5. **Resultado:** Archivos duplicados con nombres idénticos
 
-**Resultado:** Archivo `presupuesto_2024.xlsx` se copia como `2024-03-15_presupuesto_2024.xlsx`
+**Ejemplo:**
+- **Origen:** `/ADMIN/presupuesto_2024.xlsx`
+- **Destino:** `/ADMIN/BACKUP/presupuesto_2024.xlsx` (mismo nombre)
+
+### **CONFIGURACIÓN ESPECÍFICA PARA MANTENER NOMBRES:**
+
+```
+📄 Archivo: Id (del contenido dinámico)
+📁 Carpeta de destino: /ADMIN/BACKUP
+📝 Nombre del nuevo archivo: [VACÍO] ← ¡IMPORTANTE!
+```
+
+**¿Por qué dejar vacío el nombre?**
+- Power Automate automáticamente usa el nombre original
+- No hay riesgo de errores de escritura
+- Es más eficiente y confiable
 
 ---
 
